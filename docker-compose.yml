@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: zoje-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: zoje
+      POSTGRES_USER: zoje
+      POSTGRES_PASSWORD: zoje_password
+    ports:
+      - "55432:5432"
+    volumes:
+      - zoje-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zoje -d zoje"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  zoje-postgres-data:

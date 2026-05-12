@@ -2,6 +2,24 @@ import { pool } from './db.js';
 import { mapProductRow } from './productMapper.js';
 import type { Product, ProductCategory } from './types.js';
 
+const PUBLIC_CATEGORIES: ProductCategory[] = [
+  'industrial',
+  'overlock',
+  'pattern',
+  'specialty',
+  'spare-parts',
+  'accessories',
+];
+
+const SPECIALTY_CATEGORY_KEYS: ProductCategory[] = [
+  'specialty',
+  'buttonhole',
+  'bartack',
+  'embroidery',
+  'heavy-duty',
+  'domestic',
+];
+
 export type ProductListFilters = {
   category?: ProductCategory;
   featured?: boolean;
@@ -20,8 +38,13 @@ function buildProductWhere(filters: ProductListFilters) {
   }
 
   if (filters.category) {
-    values.push(filters.category);
-    where.push(`category = $${values.length}`);
+    if (filters.category === 'specialty') {
+      values.push(SPECIALTY_CATEGORY_KEYS);
+      where.push(`category = ANY($${values.length})`);
+    } else {
+      values.push(filters.category);
+      where.push(`category = $${values.length}`);
+    }
   }
 
   if (typeof filters.featured === 'boolean') {
@@ -79,10 +102,7 @@ export async function getProductBySlugWithOptions(
 }
 
 export async function getCategories() {
-  const result = await pool.query(
-    'SELECT DISTINCT category FROM products WHERE hidden = false ORDER BY category ASC'
-  );
-  return result.rows.map((row: { category: ProductCategory }) => row.category);
+  return PUBLIC_CATEGORIES;
 }
 
 export async function getRelatedProducts(product: Product, limit = 4) {

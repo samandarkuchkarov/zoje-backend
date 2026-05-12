@@ -77,6 +77,8 @@ const ProductSchema = z.object({
     'heavy-duty',
     'domestic',
     'specialty',
+    'spare-parts',
+    'accessories',
   ]),
   model: z.string().min(1),
   images: z.array(z.string()).default([]),
